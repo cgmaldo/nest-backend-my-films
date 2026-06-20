@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       // Sincroniza cambios en entidades. En producción se suele configurar a false
       synchronize: true,
     }),
+    AuthModule,
   ],
   controllers: [],
   providers: [],
