@@ -56,6 +56,8 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 .env*
-.env-template
+!.env-template
 account-service-firebase.json
 client_oauth_data.json
+/pgdata/*
+!/pgdata/.gitkeep
