@@ -1,26 +1,86 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateUserDto) {
-    return 'This action adds a new auth';
+  private readonly logger = new Logger('Auth');
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) { }
+
+  async create(createUserDto: CreateUserDto) {
+    try {
+      const newUser = this.userRepository.create(createUserDto);
+      await this.userRepository.save(newUser);
+      return newUser;
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async findAll() {
+    try {
+      return await this.userRepository.find();
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  async findOne(term: string) {
+    let user;
+    if (isUUID(term)) {
+      user = await this.userRepository.findOne({
+        where: { id: term },
+        select: { password: false },
+        //TODO relations films
+      });
+    }
+    if (!user) {
+      user = await this.userRepository.findOne({
+        where: { email: term },
+        select: { password: false },
+        //TODO relations films
+      });
+    }
+    if (!user) {
+      throw new NotFoundException(`Not found user with term "${term}"`);
+    }
+    return user;
   }
 
-  update(id: number, updateAuthDto: UpdateUserDto) {
-    return `This action updates a #${id} auth`;
+  async update(term: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.preload({
+      id: term,
+      ...updateUserDto
+    });
+    if (!user) {
+      throw new NotFoundException(`User with term "${term}" not found`);
+    }
+    try {
+      await this.userRepository.save(user);
+      return user;
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  async remove(id: string) {
+    const user = await this.findOne(id);
+    this.userRepository.remove(user);
+    return user;
+  }
+
+  private handleError(error: any) {
+    if (error.code === '23505') {
+      throw new BadRequestException(error.detail);
+    }
+    this.logger.error(error);
+    throw new InternalServerErrorException('Unexpected error check server logs');
   }
 }
