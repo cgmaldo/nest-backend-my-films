@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PaginationDto } from 'src/common/dtos/pagination-dto';
 
 @Controller('auth')
 export class AuthController {
@@ -13,8 +14,8 @@ export class AuthController {
   }
 
   @Get()
-  findAll() {
-    return this.authService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.authService.findAll(paginationDto);
   }
 
   @Get(':term')

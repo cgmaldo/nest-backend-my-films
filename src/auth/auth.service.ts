@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isUUID } from 'class-validator';
+import { PaginationDto } from '../common/dtos/pagination-dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +14,7 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly configService: ConfigService,
   ) { }
 
   async create(createUserDto: CreateUserDto) {
@@ -24,9 +27,15 @@ export class AuthService {
     }
   }
 
-  async findAll() {
+  async findAll(paginationDto: PaginationDto) {
+    const { limit = this.configService.get('PAGESIZE'), offset = 0 } = paginationDto;
     try {
-      return await this.userRepository.find();
+      return await this.userRepository.find(
+        {
+          take: limit,
+          skip: offset,
+          // TODO Relaciones
+        });
     } catch (error) {
       this.handleError(error);
     }
