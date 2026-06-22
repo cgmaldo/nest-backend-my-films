@@ -10,4 +10,5 @@ services:
       POSTGRES_DB: ${DB_NAME}
     restart: always
     volumes:
-      - ./pgdata:/var/lib/postgresql/docker
+      - ./pgdata:/var/lib/postgresql
+      # - ./pgdata:/var/lib/postgresql/18/data
