@@ -5,8 +5,8 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isUUID } from 'class-validator';
-import { PaginationDto } from '../common/dtos/pagination-dto';
 import { ConfigService } from '@nestjs/config';
+import { UserSearchDto } from '../common/dtos/user-search-dto';
 
 @Injectable()
 export class AuthService {
@@ -27,15 +27,28 @@ export class AuthService {
     }
   }
 
-  async findAll(paginationDto: PaginationDto) {
-    const { limit = this.configService.get('PAGESIZE'), offset = 0 } = paginationDto;
+  async findAll(userSearchDto: UserSearchDto) {
+    const { term = '', limit = 20, offset = 0 } = userSearchDto;
+    if (term === '') {
+      return await this.userRepository.find({
+        take: limit,
+        skip: offset,
+      })
+    }
     try {
-      return await this.userRepository.find(
-        {
-          take: limit,
-          skip: offset,
-          // TODO Relaciones
-        });
+      // 'UPPER(user.firstName) Like :firstName or UPPER(lastName) Like :lastName or UPPER(email) Like :email', {
+      const queryBuilder = this.userRepository.createQueryBuilder();
+      const users = await queryBuilder
+        .where(
+          'UPPER(User.firstName) like :firstName or UPPER(User.lastName) Like :lastName or UPPER(User.email) Like :email', {
+          firstName: `%${term.toUpperCase()}%`,
+          lastName: `%${term.toUpperCase()}%`,
+          email: `%${term.toUpperCase()}%`,
+        })
+        .take(limit)
+        .skip(offset)
+        .getMany();
+      return users;
     } catch (error) {
       this.handleError(error);
     }
