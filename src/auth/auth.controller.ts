@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from 'src/common/dtos/pagination-dto';
 import { UserSearchDto } from 'src/common/dtos/user-search-dto';
+import { LoginUserDto } from './dto/login-user-dto';
 
 @Controller('auth')
 export class AuthController {
@@ -19,10 +20,16 @@ export class AuthController {
     return this.authService.findAll(userSearchDto);
   }
 
+  @Get('login')
+  loginEmailPassword(@Body() loginUserDto: LoginUserDto) {
+    return this.authService.loginEmailPassword(loginUserDto);
+  }
+
   @Get(':term')
   findOne(@Param('term') term: string) {
     return this.authService.findOne(term);
   }
+
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {

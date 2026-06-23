@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
@@ -8,6 +8,9 @@ import { isUUID } from 'class-validator';
 import { ConfigService } from '@nestjs/config';
 import { UserSearchDto } from '../common/dtos/user-search-dto';
 import bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { LoginUserDto } from './dto/login-user-dto';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +21,7 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
+    private readonly jwtService: JwtService
   ) {
     this.limit = this.configService.get('PAGESIZE') || 20
   }
@@ -32,7 +36,10 @@ export class AuthService {
       });
       await this.userRepository.save(newUser);
       const { password: password2, ...userWithoutPassword } = newUser;
-      return userWithoutPassword;
+      return {
+        ...userWithoutPassword,
+        token: this.getJwtToken({ id: userWithoutPassword.id })
+      };
     } catch (error) {
       this.handleError(error);
     }
@@ -116,11 +123,33 @@ export class AuthService {
     return user;
   }
 
+
+  async loginEmailPassword(loginUserDto: LoginUserDto) {
+    const { email, password } = loginUserDto;
+    const user = await this.userRepository.findOne({
+      where: { email },
+      select: { email: true, password: true, firstName: true, lastName: true, roles: true }
+    })
+    if (!user || !bcrypt.compareSync(password, user.password!)) {
+      throw new UnauthorizedException('Email/Password are not valid')
+    }
+    const { password: password2, ...userWithoutPassword } = user;
+    return {
+      ...userWithoutPassword,
+      token: this.getJwtToken({ id: user.id })
+    };
+  }
+
   private handleError(error: any) {
     if (error.code === '23505') {
       throw new BadRequestException(error.detail);
     }
     this.logger.error(error);
     throw new InternalServerErrorException('Unexpected error check server logs');
+  }
+
+  private getJwtToken(payload: JwtPayload) {
+    const token = this.jwtService.sign(payload);
+    return token
   }
 }
