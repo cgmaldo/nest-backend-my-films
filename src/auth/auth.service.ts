@@ -75,11 +75,15 @@ export class AuthService {
       });
     }
     if (!user) {
-      user = await this.userRepository.findOne({
-        where: { email: term },
-        select: { password: false },
-        //TODO relations films
-      });
+      const queryBuilder = this.userRepository.createQueryBuilder();
+      user = await queryBuilder
+        .where(
+          'UPPER(User.firstName) like :firstName or UPPER(User.lastName) Like :lastName or UPPER(User.email) Like :email', {
+          firstName: `%${term.toUpperCase()}%`,
+          lastName: `%${term.toUpperCase()}%`,
+          email: `%${term.toUpperCase()}%`,
+        })
+        .getOne();
     }
     if (!user) {
       throw new NotFoundException(`Not found user with term "${term}"`);
