@@ -24,9 +24,9 @@ export class AuthController {
     return this.authService.findOne(term);
   }
 
-  @Patch(':term')
-  update(@Param('term') term: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.authService.update(term, updateUserDto);
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.authService.update(id, updateUserDto);
   }
 
   @Delete(':id')

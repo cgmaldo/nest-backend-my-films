@@ -87,13 +87,13 @@ export class AuthService {
     return user;
   }
 
-  async update(term: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.preload({
-      id: term,
+      id,
       ...updateUserDto,
     });
     if (!user) {
-      throw new NotFoundException(`User with term "${term}" not found`);
+      throw new NotFoundException(`User with id "${id}" not found`);
     }
     if (updateUserDto.password) {
       user.password = bcrypt.hashSync(updateUserDto.password, 10);
