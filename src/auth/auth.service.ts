@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { isUUID } from 'class-validator';
 import { ConfigService } from '@nestjs/config';
 import { UserSearchDto } from '../common/dtos/user-search-dto';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -23,9 +24,15 @@ export class AuthService {
 
   async create(createUserDto: CreateUserDto) {
     try {
-      const newUser = this.userRepository.create(createUserDto);
+      const { password, ...userData } = createUserDto;
+      const passwordEncrypted = bcrypt.hashSync(password, 10);
+      const newUser = this.userRepository.create({
+        ...createUserDto,
+        password: passwordEncrypted
+      });
       await this.userRepository.save(newUser);
-      return newUser;
+      const { password: password2, ...userWithoutPassword } = newUser;
+      return userWithoutPassword;
     } catch (error) {
       this.handleError(error);
     }
@@ -83,10 +90,13 @@ export class AuthService {
   async update(term: string, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.preload({
       id: term,
-      ...updateUserDto
+      ...updateUserDto,
     });
     if (!user) {
       throw new NotFoundException(`User with term "${term}" not found`);
+    }
+    if (updateUserDto.password) {
+      user.password = bcrypt.hashSync(updateUserDto.password, 10);
     }
     try {
       await this.userRepository.save(user);
