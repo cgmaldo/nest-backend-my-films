@@ -11,11 +11,15 @@ import { UserSearchDto } from '../common/dtos/user-search-dto';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger('Auth');
+  private limit: number;
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
-  ) { }
+  ) {
+    this.limit = this.configService.get('PAGESIZE') || 20
+  }
 
   async create(createUserDto: CreateUserDto) {
     try {
@@ -28,7 +32,7 @@ export class AuthService {
   }
 
   async findAll(userSearchDto: UserSearchDto) {
-    const { term = '', limit = 20, offset = 0 } = userSearchDto;
+    const { term = '', limit = this.limit, offset = 0 } = userSearchDto;
     if (term === '') {
       return await this.userRepository.find({
         take: limit,
