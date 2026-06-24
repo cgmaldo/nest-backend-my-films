@@ -9,7 +9,6 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-
     constructor(
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
