@@ -128,7 +128,7 @@ export class AuthService {
     const { email, password } = loginUserDto;
     const user = await this.userRepository.findOne({
       where: { email },
-      select: { email: true, password: true, firstName: true, lastName: true, roles: true }
+      select: { id: true, email: true, password: true, firstName: true, lastName: true, roles: true }
     })
     if (!user || !bcrypt.compareSync(password, user.password!)) {
       throw new UnauthorizedException('Email/Password are not valid')
@@ -136,7 +136,7 @@ export class AuthService {
     const { password: password2, ...userWithoutPassword } = user;
     return {
       ...userWithoutPassword,
-      token: this.getJwtToken({ id: user.id })
+      token: this.getJwtToken({ id: userWithoutPassword.id })
     };
   }
 
