@@ -8,6 +8,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { ValidRoles } from './interfaces/valid-roles';
 import { Auth } from './decorators/auth.decorator';
 import { MyselfOrAdminGuard } from './guards/myself-or-admin.guard';
+import { GetUser } from './decorators/get-user.decorator';
+import { User } from './entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -29,11 +31,18 @@ export class AuthController {
     return this.authService.loginEmailPassword(loginUserDto);
   }
 
+  @Get('renewToken')
+  @UseGuards(AuthGuard())
+  renewToken(@GetUser() user: User) {
+    return this.authService.renewToken(user);
+  }
+
   @Get(':term')
   @UseGuards(AuthGuard(), MyselfOrAdminGuard)
   findOne(@Param('term') term: string) {
     return this.authService.findOne(term);
   }
+
 
   @Patch(':id')
   @UseGuards(AuthGuard(), MyselfOrAdminGuard)

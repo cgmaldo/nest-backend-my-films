@@ -98,6 +98,13 @@ export class AuthService {
     return user;
   }
 
+  async renewToken(user: User) {
+    return {
+      ...user,
+      token: this.getJwtToken({ id: user.id }),
+    }
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.preload({
       id,
