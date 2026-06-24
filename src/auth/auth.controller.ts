@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PaginationDto } from 'src/common/dtos/pagination-dto';
 import { UserSearchDto } from 'src/common/dtos/user-search-dto';
 import { LoginUserDto } from './dto/login-user-dto';
 
@@ -10,7 +9,7 @@ import { LoginUserDto } from './dto/login-user-dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
-  @Post()
+  @Post('register')
   create(@Body() createUserDto: CreateUserDto) {
     return this.authService.create(createUserDto);
   }
