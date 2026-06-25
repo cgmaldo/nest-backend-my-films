@@ -30,9 +30,12 @@ export class AuthService {
     try {
       const { password, ...userData } = createUserDto;
       const passwordEncrypted = bcrypt.hashSync(password, 10);
+      const now = new Date();
       const newUser = this.userRepository.create({
         ...createUserDto,
-        password: passwordEncrypted
+        password: passwordEncrypted,
+        createdAt: now,
+        updatedAt: now
       });
       await this.userRepository.save(newUser);
       const { password: password2, ...userWithoutPassword } = newUser;
@@ -106,9 +109,11 @@ export class AuthService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
+    const now = new Date();
     const user = await this.userRepository.preload({
       id,
       ...updateUserDto,
+      updatedAt: now,
     });
     if (!user) {
       throw new NotFoundException(`User with id "${id}" not found`);
