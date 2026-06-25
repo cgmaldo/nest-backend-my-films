@@ -50,6 +50,21 @@ export class User {
     })
     roles: string[];
 
+    @Column({
+        type: 'timestamptz',
+        precision: 3,
+        nullable: true,
+        default: () => "CURRENT_TIMESTAMP"
+    })
+    createdAt: Date;
+
+    @Column({
+        type: 'timestamptz',
+        precision: 3,
+        nullable: true,
+    })
+    updatedAt: Date;
+
     @BeforeInsert()
     checkInsertEmail() {
         this.email = this.email.toLowerCase().trim();
