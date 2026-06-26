@@ -8,6 +8,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { Film } from 'src/film/entities/film.entity';
 
 @Module({
   controllers: [AuthController],
@@ -29,6 +30,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
         }
       }
     }),
+    TypeOrmModule.forFeature([User, Film])
   ],
   exports: [TypeOrmModule, JwtStrategy, PassportModule, JwtModule]
 })

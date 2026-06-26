@@ -1,4 +1,5 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Film } from "src/film/entities/film.entity";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -64,6 +65,13 @@ export class User {
         nullable: true,
     })
     updatedAt: Date;
+
+    @OneToMany(
+        () => Film,
+        (film) => film.user,
+        { eager: true, cascade: true }
+    )
+    films?: Film[];
 
     @BeforeInsert()
     checkInsertEmail() {
