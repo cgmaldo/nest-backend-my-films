@@ -54,6 +54,9 @@ export class AuthService {
       return await this.userRepository.find({
         take: limit,
         skip: offset,
+        relations: {
+          films: false,
+        }
       })
     }
     try {
@@ -81,11 +84,13 @@ export class AuthService {
       user = await this.userRepository.findOne({
         where: { id: term },
         select: { password: false },
-        //TODO relations films
+        relations: {
+          films: false,
+        }
       });
     }
     if (!user) {
-      const queryBuilder = this.userRepository.createQueryBuilder();
+      const queryBuilder = this.userRepository.createQueryBuilder('auth');
       user = await queryBuilder
         .where(
           'UPPER(User.firstName) like :firstName or UPPER(User.lastName) Like :lastName or UPPER(User.email) Like :email', {
@@ -93,6 +98,7 @@ export class AuthService {
           lastName: `%${term.toUpperCase()}%`,
           email: `%${term.toUpperCase()}%`,
         })
+        // .leftJoinAndSelect('auth.films', 'authFilms')
         .getOne();
     }
     if (!user) {
