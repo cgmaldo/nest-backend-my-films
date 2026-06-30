@@ -1,5 +1,4 @@
-import { IsIn, IsString, MinLength } from "class-validator"
-import { Column } from "typeorm"
+import { IsIn, IsString, IsUUID, MinLength } from "class-validator"
 import { TypeFilm } from "../interfaces/typefilm.interface";
 import { User } from "src/auth/entities/user.entity";
 
@@ -12,8 +11,9 @@ export class CreateFilmDto {
     title: string;
 
     @IsString()
-    posterPath: string | null;
+    posterPath: string;
 
+    @IsString()
     @IsIn(Object.values(TypeFilm))
     type: TypeFilm;
 }

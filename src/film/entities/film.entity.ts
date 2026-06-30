@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { TypeFilm } from "../interfaces/typefilm.interface";
 import { User } from "src/auth/entities/user.entity";
 
@@ -7,9 +7,7 @@ export class Film {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column('text', {
-        unique: true
-    })
+    @Column('text')
     filmId: string;
 
     @Column('text')
@@ -38,6 +36,7 @@ export class Film {
     @ManyToOne(
         () => User,
         (user) => user.films,
+        // { eager: false, cascade: true }
     )
-    user?: User;
+    user: User;
 }
