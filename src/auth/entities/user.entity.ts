@@ -69,9 +69,8 @@ export class User {
     @OneToMany(
         () => Film,
         (film) => film.user,
-        { eager: true, cascade: true }
     )
-    films?: Film[];
+    films: Film[];
 
     @BeforeInsert()
     checkInsertEmail() {
