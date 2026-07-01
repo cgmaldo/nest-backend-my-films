@@ -49,7 +49,6 @@ export class AuthController {
     return this.authService.findOne(term);
   }
 
-
   @Patch(':id')
   @UseGuards(AuthGuard(), MyselfOrAdminGuard)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
