@@ -43,7 +43,6 @@ export class AuthController {
     return this.authService.googleLogin(req);
   }
 
-  // @Get("facebook/callback")
   @Get("facebook")
   @UseGuards(AuthGuard("facebook"))
   facebookLoginRedirect(@Req() req: Request) {
