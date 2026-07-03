@@ -189,6 +189,37 @@ export class AuthService {
     }
   }
 
+  async facebookLogin(req: any) {
+    if (!req.user) {
+      throw new BadRequestException('No data for user login');
+    }
+    const user = await this.userRepository.findOne({
+      where: { email: req.user.email },
+      select: { password: false },
+    });
+    if (user && !user.isActive) {
+      throw new BadRequestException(`User "${user.email}" is not active. Talk with administrator`)
+    }
+    if (user) {
+      return {
+        ...user,
+        token: this.getJwtToken({ id: user.id }),
+      }
+    }
+    const newUser = this.userRepository.create({
+      email: req.user.email,
+      password: '',
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      imageUrl: '',
+    });
+    await this.userRepository.save(newUser);
+    return {
+      ...newUser,
+      token: this.getJwtToken({ id: newUser.id })
+    }
+  }
+
   private handleError(error: any) {
     if (error.code === '23505') {
       throw new BadRequestException(error.detail);

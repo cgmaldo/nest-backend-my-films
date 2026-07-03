@@ -1,5 +1,6 @@
 import { Film } from "src/film/entities/film.entity";
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { UserOrigins } from "../interfaces/user-origin.interface";
 
 @Entity()
 export class User {
@@ -41,10 +42,6 @@ export class User {
     })
     isActive: boolean;
 
-    //TODO film watches
-    //TODO film pending
-    //TODO film favorites
-
     @Column('text', {
         array: true,
         default: ['user']
@@ -71,6 +68,13 @@ export class User {
         (film) => film.user,
     )
     films: Film[];
+
+    @Column({
+        type: "enum",
+        enum: Object.values(UserOrigins),
+        default: UserOrigins.userpassword
+    })
+    origin: string;
 
     @BeforeInsert()
     checkInsertEmail() {

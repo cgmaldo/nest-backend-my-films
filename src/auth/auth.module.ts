@@ -9,10 +9,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { Film } from 'src/film/entities/film.entity';
+import { FacebookStrategy } from './strategies/facebook.strategy';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, GoogleStrategy],
+  providers: [AuthService, JwtStrategy, GoogleStrategy, FacebookStrategy],
   imports: [
     ConfigModule,
     TypeOrmModule.forFeature([User]),
