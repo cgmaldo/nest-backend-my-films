@@ -223,7 +223,7 @@ export class AuthService {
       password: '',
       firstName: req.user.firstName,
       lastName: req.user.lastName,
-      imageUrl: '',
+      imageUrl: req.user.imageUrl,
       origin: UserOrigins.facebook,
     });
     await this.userRepository.save(newUser);

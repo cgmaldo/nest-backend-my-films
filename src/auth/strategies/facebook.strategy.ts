@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy } from "passport-facebook";
@@ -13,17 +13,26 @@ export class FacebookStrategy extends PassportStrategy(Strategy, "facebook") {
             clientSecret: configService.get('FACEBOOK_APP_SECRET') as string,
             callbackURL: configService.get('FACEBOOK_CALLBACKURL') as string,
             scope: 'email',
-            profileFields: ['emails', 'name'],
+            profileFields: ['emails', 'name', 'photos'],
         });
     }
 
     async validate(accessToken: string, refreshToken: string, profile: any, done: Function) {
-        const { name, emails } = profile;
-        // emails is an array; shift() or [0] gets the primary email
+        const { name, emails = null, photos = null } = profile;
+
+        if (!emails) {
+            return done('error', null)
+        }
+        const email = emails[0].value;
+        if (!photos) {
+            return done('error', null)
+        }
+        const imageUrl = photos[0].value
         const user = {
             firstName: name.givenName,
             lastName: name.familyName,
-            email: emails[0].value, // Extract email string
+            email,
+            imageUrl,
             provider: 'facebook',
             providerId: profile.id,
         };
