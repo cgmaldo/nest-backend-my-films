@@ -11,6 +11,7 @@ import bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { LoginUserDto } from './dto/login-user-dto';
+import { UserOrigins } from './interfaces/user-origin.interface';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,8 @@ export class AuthService {
         ...createUserDto,
         password: passwordEncrypted,
         createdAt: now,
-        updatedAt: now
+        updatedAt: now,
+        origin: UserOrigins.userpassword,
       });
       await this.userRepository.save(newUser);
       const { password: password2, ...userWithoutPassword } = newUser;
@@ -145,7 +147,10 @@ export class AuthService {
   async loginEmailPassword(loginUserDto: LoginUserDto) {
     const { email, password } = loginUserDto;
     const user = await this.userRepository.findOne({
-      where: { email },
+      where: {
+        email,
+        origin: UserOrigins.userpassword
+      },
       select: { id: true, email: true, password: true, firstName: true, lastName: true, roles: true }
     })
     if (!user || !bcrypt.compareSync(password, user.password!)) {
@@ -163,7 +168,10 @@ export class AuthService {
       throw new BadRequestException('No data for user login');
     }
     const user = await this.userRepository.findOne({
-      where: { email: req.user.email },
+      where: {
+        email: req.user.email,
+        origin: UserOrigins.google,
+      },
       select: { password: false },
     });
     if (user && !user.isActive) {
@@ -181,6 +189,7 @@ export class AuthService {
       firstName: req.user.firstName,
       lastName: req.user.lastName,
       imageUrl: req.user.picture,
+      origin: UserOrigins.google,
     });
     await this.userRepository.save(newUser);
     return {
@@ -194,7 +203,10 @@ export class AuthService {
       throw new BadRequestException('No data for user login');
     }
     const user = await this.userRepository.findOne({
-      where: { email: req.user.email },
+      where: {
+        email: req.user.email,
+        origin: UserOrigins.facebook,
+      },
       select: { password: false },
     });
     if (user && !user.isActive) {
@@ -212,6 +224,7 @@ export class AuthService {
       firstName: req.user.firstName,
       lastName: req.user.lastName,
       imageUrl: '',
+      origin: UserOrigins.facebook,
     });
     await this.userRepository.save(newUser);
     return {

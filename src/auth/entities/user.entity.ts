@@ -1,15 +1,15 @@
 import { Film } from "src/film/entities/film.entity";
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, Index, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { UserOrigins } from "../interfaces/user-origin.interface";
 
 @Entity()
+@Index(["email", "origin"], { unique: true })
 export class User {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column({
         type: 'text',
-        unique: true
     })
     email: string;
 
@@ -72,7 +72,6 @@ export class User {
     @Column({
         type: "enum",
         enum: Object.values(UserOrigins),
-        default: UserOrigins.userpassword
     })
     origin: string;
 
