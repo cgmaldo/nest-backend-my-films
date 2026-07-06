@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { FilmModule } from './film/film.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FilmModule } from './film/film.module';
     AuthModule,
     CommonModule,
     FilmModule,
+    FileModule,
   ],
   controllers: [],
   providers: [],

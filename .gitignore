@@ -62,3 +62,5 @@ client_oauth_data.json
 credential_oauth.json
 /pgdata/*
 !/pgdata/.gitkeep
+static/profilePhotos/*
+!static/profilePhotos/.gitkeep
