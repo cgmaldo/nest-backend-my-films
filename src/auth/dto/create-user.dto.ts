@@ -1,4 +1,4 @@
-import { IsEmail, IsString, Matches, MinLength, minLength } from "class-validator";
+import { IsEmail, IsOptional, IsString, Matches, MinLength, minLength } from "class-validator";
 import { BeforeInsert, BeforeUpdate, Column } from "typeorm";
 
 export class CreateUserDto {
@@ -20,7 +20,9 @@ export class CreateUserDto {
     @MinLength(1)
     lastName: string;
 
-    //TODO imagen profile
+    @IsOptional()
+    @IsString()
+    imageUrl?: string;
 
     @BeforeInsert()
     checkInsertEmail() {

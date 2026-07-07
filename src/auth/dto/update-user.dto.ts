@@ -4,8 +4,8 @@ import { Column } from 'typeorm';
 import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
-    @IsString()
     @IsOptional()
+    @IsString()
     imageUrl?: string;
 
     @IsBoolean()
