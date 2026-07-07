@@ -1,16 +1,23 @@
-import { Controller, Post, UseInterceptors, UploadedFile, BadRequestException, Get, Param, ParseUUIDPipe, NotFoundException, Res } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFile, BadRequestException, Get, Param, ParseUUIDPipe, NotFoundException, Res, Delete, UseGuards } from '@nestjs/common';
 import { FileService } from './file.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { fileFilter, fileNamer } from './helpers';
 import type { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from '@nestjs/passport';
+import { MyselfOrAdminGuard } from 'src/auth/guards/myself-or-admin.guard';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { User } from 'src/auth/entities/user.entity';
+import { AuthService } from 'src/auth/auth.service';
+import { OwnerOrAdminGuard } from 'src/auth/guards/owner-or-admin.guard';
 
 @Controller('file')
 export class FileController {
   constructor(
     private readonly fileService: FileService,
-    private readonly configService: ConfigService) { }
+    private readonly configService: ConfigService,
+  ) { }
 
   @Post('profilePhoto')
   // file es el nombre de la propiedad del body de la petición
@@ -21,9 +28,9 @@ export class FileController {
       destination: './static/profilePhotos',
       filename: fileNamer,
     }),
-
   }))
-  uploadProfilePhoto(@UploadedFile() file: Express.Multer.File) {
+  @UseGuards(AuthGuard())
+  async uploadProfilePhoto(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('File is not valid');
     }
@@ -35,5 +42,11 @@ export class FileController {
   getProfilePhoto(@Res() res: Response, @Param('imageName') imageName: string) {
     const path = this.fileService.getProfilePhoto(imageName);
     res.sendFile(path);
+  }
+
+  @Delete('profilePhoto/:imageName')
+  @UseGuards(AuthGuard(), OwnerOrAdminGuard)
+  deletetProfilePhoto(@Param('imageName') imageName: string) {
+    return this.fileService.deleteProfilePhoto(imageName);
   }
 }
