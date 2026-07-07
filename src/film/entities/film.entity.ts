@@ -36,7 +36,7 @@ export class Film {
     @ManyToOne(
         () => User,
         (user) => user.films,
-        // { eager: false, cascade: true }
+        { onDelete: 'CASCADE' }
     )
     user: User;
 }

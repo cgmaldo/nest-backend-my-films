@@ -12,6 +12,9 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { LoginUserDto } from './dto/login-user-dto';
 import { UserOrigins } from './interfaces/user-origin.interface';
+import { FileService } from '../file/file.service';
+import { existsSync, unlink, unlinkSync } from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +25,7 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
   ) {
     this.limit = this.configService.get('PAGESIZE') || 20
   }
@@ -140,9 +143,22 @@ export class AuthService {
   async remove(id: string) {
     const user = await this.findOne(id);
     this.userRepository.remove(user);
+    if (user.imageUrl.length > 0) {
+      const partsImageUrl = user.imageUrl.split('/');
+      const imageToDelete = partsImageUrl[partsImageUrl.length - 1];
+      const path = join(__dirname, '/../../static/profilePhotos', imageToDelete);
+      if (!existsSync(path)) {
+        throw new NotFoundException(`File with name ${imageToDelete} not exists`);
+      }
+      try {
+        unlinkSync(path);
+      }
+      catch (error) {
+        throw new BadRequestException(`Problem deleting the file "${imageToDelete}"`);
+      }
+    }
     return user;
   }
-
 
   async loginEmailPassword(loginUserDto: LoginUserDto) {
     const { email, password } = loginUserDto;
