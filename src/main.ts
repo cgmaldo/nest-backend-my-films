@@ -1,12 +1,35 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
 
   const logger = new Logger('App');
 
   const app = await NestFactory.create(AppModule);
+
+  const config = new DocumentBuilder()
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT', // Opcional, para claridad visual
+      in: 'header',
+    }, 'bearer-token')
+    .setTitle('Cgmaldo.MyFilms RESTFul API')
+    .setDescription('MyFilms endpoints')
+    .setVersion('1.0')
+    .addTag('Auths', 'All auths', undefined)
+    .addTag('Films', 'All films', undefined)
+    .addTag('Files - Get and Upload', 'All files', undefined)
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
+
+  // Proporciona un endpoint para descargar documentación en formato JSON
+  // SwaggerModule.setup('api', app, documentFactory,{
+  //   jsonDocumentUrl: 'api/json',
+  // });
 
   app.useGlobalPipes(
     new ValidationPipe({

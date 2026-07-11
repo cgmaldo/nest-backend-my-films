@@ -3,10 +3,10 @@ import { IsOptional, IsString } from "class-validator";
 import { PaginationDto } from "./pagination-dto";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class UserSearchDto extends PartialType(PaginationDto) {
+export class FilmSearchDto extends PartialType(PaginationDto) {
     @ApiProperty({
         default: '""',
-        description: 'Search term by first name, surname or email address',
+        description: 'Search term by film name',
         required: false,
     })
     @IsOptional()

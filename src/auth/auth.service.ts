@@ -1,20 +1,19 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { join } from 'path';
+import bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isUUID } from 'class-validator';
 import { ConfigService } from '@nestjs/config';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { LoginUserDto } from './dto/login-user-dto';
+import { User } from './entities/user.entity';
 import { UserSearchDto } from '../common/dtos/user-search-dto';
-import bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { LoginUserDto } from './dto/login-user-dto';
 import { UserOrigins } from './interfaces/user-origin.interface';
-import { FileService } from '../file/file.service';
-import { existsSync, unlink, unlinkSync } from 'fs';
-import { join } from 'path';
+import { existsSync, unlinkSync } from 'fs';
 
 @Injectable()
 export class AuthService {
@@ -55,17 +54,7 @@ export class AuthService {
 
   async findAll(userSearchDto: UserSearchDto) {
     const { term = '', limit = this.limit, offset = 0 } = userSearchDto;
-    if (term === '') {
-      return await this.userRepository.find({
-        take: limit,
-        skip: offset,
-        relations: {
-          films: false,
-        }
-      })
-    }
     try {
-      // 'UPPER(user.firstName) Like :firstName or UPPER(lastName) Like :lastName or UPPER(email) Like :email', {
       const queryBuilder = this.userRepository.createQueryBuilder();
       const users = await queryBuilder
         .where(
@@ -76,8 +65,19 @@ export class AuthService {
         })
         .take(limit)
         .skip(offset)
-        .getMany();
-      return users;
+        .getManyAndCount();
+      const count = users[1];
+      if (count === 0) {
+        return {
+          users: [],
+          numPages: 0
+        }
+      }
+      const numPages = count < limit! ? 1 : Math.ceil(count / limit!);
+      return {
+        users: users[0],
+        numPages: numPages
+      }
     } catch (error) {
       this.handleError(error);
     }
@@ -199,18 +199,22 @@ export class AuthService {
         token: this.getJwtToken({ id: user.id }),
       }
     }
-    const newUser = this.userRepository.create({
-      email: req.user.email,
-      password: '',
-      firstName: req.user.firstName,
-      lastName: req.user.lastName,
-      imageUrl: req.user.picture,
-      origin: UserOrigins.google,
-    });
-    await this.userRepository.save(newUser);
-    return {
-      ...newUser,
-      token: this.getJwtToken({ id: newUser.id })
+    try {
+      const newUser = this.userRepository.create({
+        email: req.user.email,
+        password: '',
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        imageUrl: req.user.picture,
+        origin: UserOrigins.google,
+      });
+      await this.userRepository.save(newUser);
+      return {
+        ...newUser,
+        token: this.getJwtToken({ id: newUser.id })
+      }
+    } catch (error) {
+      this.handleError(error);
     }
   }
 
@@ -234,18 +238,22 @@ export class AuthService {
         token: this.getJwtToken({ id: user.id }),
       }
     }
-    const newUser = this.userRepository.create({
-      email: req.user.email,
-      password: '',
-      firstName: req.user.firstName,
-      lastName: req.user.lastName,
-      imageUrl: req.user.imageUrl,
-      origin: UserOrigins.facebook,
-    });
-    await this.userRepository.save(newUser);
-    return {
-      ...newUser,
-      token: this.getJwtToken({ id: newUser.id })
+    try {
+      const newUser = this.userRepository.create({
+        email: req.user.email,
+        password: '',
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        imageUrl: req.user.imageUrl,
+        origin: UserOrigins.facebook,
+      });
+      await this.userRepository.save(newUser);
+      return {
+        ...newUser,
+        token: this.getJwtToken({ id: newUser.id })
+      }
+    } catch (error) {
+      this.handleError(error);
     }
   }
 
