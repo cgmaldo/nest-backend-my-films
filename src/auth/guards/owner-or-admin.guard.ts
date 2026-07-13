@@ -15,10 +15,6 @@ export class OwnerOrAdminGuard implements CanActivate {
       return true;
     }
     const partsEndpoint = req.url.split('/');
-
-    console.log(user.imageUrl);
-    console.log(partsEndpoint[partsEndpoint.length - 1]);
-
     if (user.imageUrl.includes(partsEndpoint[partsEndpoint.length - 1])) {
       return true;
     }
