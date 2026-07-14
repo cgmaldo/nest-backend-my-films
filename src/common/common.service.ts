@@ -11,4 +11,11 @@ export class CommonService {
         this.logger.error(error);
         throw new InternalServerErrorException('Unexpected error check server logs');
     }
+
+    fileNameFromUrl(url: string) {
+        const partsUrl = url.split('/');
+        if (partsUrl.length === 0) return '';
+        return partsUrl[partsUrl.length - 1];
+    }
+
 }
