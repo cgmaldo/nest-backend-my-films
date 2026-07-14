@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { join } from 'path';
 import bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isUUID } from 'class-validator';
 import { ConfigService } from '@nestjs/config';
@@ -14,13 +14,14 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { UserOrigins } from './interfaces/user-origin.interface';
 import { existsSync, unlinkSync } from 'fs';
+import { CommonService } from '../common/common.service';
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger('Auth');
   private limit: number;
 
   constructor(
+    private readonly commonService: CommonService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
@@ -48,7 +49,7 @@ export class AuthService {
         token: this.getJwtToken({ id: userWithoutPassword.id })
       };
     } catch (error) {
-      this.handleError(error);
+      this.commonService.handleError(error);
     }
   }
 
@@ -79,7 +80,7 @@ export class AuthService {
         numPages: numPages
       }
     } catch (error) {
-      this.handleError(error);
+      this.commonService.handleError(error);
     }
   }
 
@@ -112,6 +113,13 @@ export class AuthService {
     return user;
   }
 
+  async findOneByPhoto(imageName: string) {
+    const user = await this.userRepository.findOne({
+      where: { imageUrl: Like(`%${imageName}`) }
+    })
+    return user;
+  }
+
   async renewToken(user: User) {
     return {
       ...user,
@@ -136,7 +144,7 @@ export class AuthService {
       await this.userRepository.save(user);
       return user;
     } catch (error) {
-      this.handleError(error);
+      this.commonService.handleError(error);
     }
   }
 
@@ -214,7 +222,7 @@ export class AuthService {
         token: this.getJwtToken({ id: newUser.id })
       }
     } catch (error) {
-      this.handleError(error);
+      this.commonService.handleError(error);
     }
   }
 
@@ -253,16 +261,8 @@ export class AuthService {
         token: this.getJwtToken({ id: newUser.id })
       }
     } catch (error) {
-      this.handleError(error);
+      this.commonService.handleError(error);
     }
-  }
-
-  private handleError(error: any) {
-    if (error.code === '23505') {
-      throw new BadRequestException(error.detail);
-    }
-    this.logger.error(error);
-    throw new InternalServerErrorException('Unexpected error check server logs');
   }
 
   private getJwtToken(payload: JwtPayload) {

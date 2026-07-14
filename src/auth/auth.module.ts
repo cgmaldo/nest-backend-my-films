@@ -10,12 +10,14 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { Film } from 'src/film/entities/film.entity';
 import { FacebookStrategy } from './strategies/facebook.strategy';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, GoogleStrategy, FacebookStrategy],
   imports: [
     ConfigModule,
+    CommonModule,
     TypeOrmModule.forFeature([User]),
     // Configuración sin necesidad de un módulo asíncrono eligiendo la estrategia JWT
     PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -33,6 +35,6 @@ import { FacebookStrategy } from './strategies/facebook.strategy';
     }),
     TypeOrmModule.forFeature([User, Film])
   ],
-  exports: [TypeOrmModule, JwtStrategy, PassportModule, JwtModule]
+  exports: [TypeOrmModule, JwtStrategy, PassportModule, JwtModule, AuthService]
 })
 export class AuthModule { }

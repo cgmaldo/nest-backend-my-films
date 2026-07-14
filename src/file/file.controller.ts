@@ -7,16 +7,34 @@ import type { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
 import { OwnerOrAdminGuard } from 'src/auth/guards/owner-or-admin.guard';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { User } from 'src/auth/entities/user.entity';
+import { AuthService } from 'src/auth/auth.service';
 
 @ApiTags('Files - Get and Upload')
 @Controller('file')
 export class FileController {
   constructor(
     private readonly fileService: FileService,
-    private readonly configService: ConfigService,
   ) { }
 
+  @ApiResponse({ status: 200, description: 'Updload profile photo for user' })
+  @ApiResponse({ status: 400, description: 'Not found file' })
+  @ApiResponse({ status: 400, description: 'Not found user' })
+  @ApiBearerAuth('bearer-token')
+  @ApiParam({
+    type: File,
+    name: 'file',
+    description: 'File for upload the profile photo of authenticated user',
+    required: true,
+  })
+  @ApiParam({
+    type: User,
+    name: 'user',
+    description: 'Data about the user who wants to upload their profile photo. Obtained using custom decorator GetUser',
+    required: true,
+  })
   @Post('profilePhoto')
   // file es el nombre de la propiedad del body de la petición
   @UseInterceptors(FileInterceptor('file', {
@@ -28,23 +46,40 @@ export class FileController {
     }),
   }))
   @UseGuards(AuthGuard())
-  async uploadProfilePhoto(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('File is not valid');
-    }
-    const secureUrl = `${this.configService.get<string>('HOST_API')}/file/profilePhoto/${file.filename}`;
-    return secureUrl;
+  async uploadProfilePhoto(@UploadedFile() file: Express.Multer.File, @GetUser() user: User) {
+    return this.fileService.uploadProfilePhoto(file, user);
   }
 
+  @ApiResponse({ status: 200, description: 'Profile photo for user' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Not found found photo' })
+  @ApiParam({
+    type: String,
+    name: 'imageName',
+    description: 'Name of user\`s profile photo',
+    required: true,
+  })
+  @ApiBearerAuth('bearer-token')
   @Get('profilePhoto/:imageName')
+  @UseGuards(AuthGuard())
   getProfilePhoto(@Res() res: Response, @Param('imageName') imageName: string) {
     const path = this.fileService.getProfilePhoto(imageName);
     res.sendFile(path);
   }
 
+  @ApiResponse({ status: 200, description: 'Profile photo for user deleted. Response name of photo' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Not found found photo' })
+  @ApiParam({
+    type: String,
+    name: 'imageName',
+    description: 'Name of user\`s profile photo',
+    required: true,
+  })
+  @ApiBearerAuth('bearer-token')
   @Delete('profilePhoto/:imageName')
   @UseGuards(AuthGuard(), OwnerOrAdminGuard)
-  deletetProfilePhoto(@Param('imageName') imageName: string) {
-    return this.fileService.deleteProfilePhoto(imageName);
+  deletetProfilePhoto(@Param('imageName') imageName: string, @GetUser() user: User) {
+    return this.fileService.deleteProfilePhoto(imageName, user);
   }
 }
