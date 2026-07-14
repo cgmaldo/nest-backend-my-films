@@ -3,6 +3,7 @@ import { FilmService } from './film.service';
 import { FilmController } from './film.controller';
 import { AuthModule } from 'src/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   controllers: [FilmController],
@@ -10,6 +11,7 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     ConfigModule,
     AuthModule,
+    CommonModule,
   ]
 })
 export class FilmModule { }

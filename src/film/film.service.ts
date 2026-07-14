@@ -2,22 +2,20 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { CreateFilmDto } from './dto/create-film.dto';
 import { UpdateFilmDto } from './dto/update-film.dto';
 import { User } from 'src/auth/entities/user.entity';
-import { Repository } from 'typeorm';
+import { ILike, Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Film } from './entities/film.entity';
-import { PaginationDto } from '../common/dtos/pagination-dto';
 import { ConfigService } from '@nestjs/config';
 import { TypeFilm } from './interfaces/typefilm.interface';
 import { FilmSearchDto } from 'src/common/dtos/film-search-dto';
+import { CommonService } from '../common/common.service';
 
 @Injectable()
 export class FilmService {
-  private readonly logger = new Logger('Auth');
-
   constructor(
+    private readonly commonService: CommonService,
     @InjectRepository(Film)
     private readonly filmRepository: Repository<Film>,
-
     private readonly configService: ConfigService,
   ) { }
 
@@ -32,7 +30,7 @@ export class FilmService {
         ...film
       }
     } catch (error) {
-      this.handleError(error);
+      this.commonService.handleError(error);
     }
   }
 
@@ -66,7 +64,7 @@ export class FilmService {
         numPages
       };
     } catch (error) {
-      this.handleError(error);
+      this.commonService.handleError(error);
     }
   }
 
@@ -101,7 +99,7 @@ export class FilmService {
       await this.filmRepository.save(updateFilm);
       return updateFilm;
     } catch (error) {
-      this.handleError(error);
+      this.commonService.handleError(error);
     }
   }
 
@@ -111,15 +109,7 @@ export class FilmService {
       await this.filmRepository.delete(film);
       return film;
     } catch (error) {
-      this.handleError(error);
+      this.commonService.handleError(error);
     }
-  }
-
-  private handleError(error: any) {
-    if (error.code === '23505') {
-      throw new BadRequestException(error.detail);
-    }
-    this.logger.error(error);
-    throw new InternalServerErrorException('Unexpected error check server logs');
   }
 }
