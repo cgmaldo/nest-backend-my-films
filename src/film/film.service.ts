@@ -37,14 +37,17 @@ export class FilmService {
   async findAll(typeFilm: TypeFilm, filmSearchDto: FilmSearchDto, user: User) {
     try {
       const { limit = this.configService.get('PAGESIZE'), offset = 0, term = '' } = filmSearchDto;
+
+      const termSlug = this.commonService.slugFromTitle(term);
+
       const queryBuilder = this.filmRepository.createQueryBuilder('film');
       const films = await queryBuilder
         .select(["film.id", "film.filmId", "film.title", "film.posterPath", "film.date"])
         .where('film.userId=:who', { who: user.id })
         .andWhere('film.type=:typeFilm', { typeFilm: typeFilm })
         .andWhere(
-          'UPPER(title) like :title', {
-          title: `%${term.toUpperCase()}%`,
+          'LOWER(slug) like :slug', {
+          slug: `%${termSlug}%`,
         })
         .take(limit)
         .skip(offset)

@@ -18,4 +18,8 @@ export class CommonService {
         return partsUrl[partsUrl.length - 1];
     }
 
+    slugFromTitle(title: string) {
+        return title.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ /g, '_');
+    }
+
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { TypeFilm } from "../interfaces/typefilm.interface";
 import { User } from "src/auth/entities/user.entity";
 import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
@@ -26,6 +26,13 @@ export class Film {
     })
     @Column('text')
     title: string;
+
+    @ApiProperty({
+        example: 'sonrisas_y_lagrimas',
+        description: 'title of film without spaces and accents',
+    })
+    @Column('text')
+    slug: string;
 
     @ApiProperty({
         example: '/AeasdasdfsdfWQzxAw4QpB43YfqxEF.jpg',
@@ -69,4 +76,14 @@ export class Film {
         { onDelete: 'CASCADE' }
     )
     user: User;
+
+    @BeforeInsert()
+    checkInsertFilm() {
+        this.slug = this.title.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ /g, '_');
+    }
+
+    @BeforeUpdate()
+    checkUpdateFilm() {
+        this.slug = this.title.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ /g, '_');
+    }
 }
