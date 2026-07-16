@@ -1,10 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
 import { existsSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { User } from 'src/auth/entities/user.entity';
-import { Like, Repository } from 'typeorm';
 import { CommonService } from '../common/common.service';
 import { AuthService } from '../auth/auth.service';
 

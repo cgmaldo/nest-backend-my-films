@@ -4,13 +4,11 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { fileFilter, fileNamer } from './helpers';
 import type { Response } from 'express';
-import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
 import { OwnerOrAdminGuard } from 'src/auth/guards/owner-or-admin.guard';
 import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from 'src/auth/entities/user.entity';
-import { AuthService } from 'src/auth/auth.service';
 
 @ApiTags('Files - Get and Upload')
 @Controller('file')
