@@ -2,12 +2,21 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+// import * as fs from 'fs';
 
 async function bootstrap() {
 
   const logger = new Logger('App');
 
+  // Certificado Root Local para activar Https como localhost
+  // const httpsOptions = {
+  //   key: fs.readFileSync(__dirname + '/../src/server.key'),
+  //   cert: fs.readFileSync(__dirname + '/../src/server.crt'),
+  // };
+
+  // const app = await NestFactory.create(AppModule, { httpsOptions });
   const app = await NestFactory.create(AppModule);
+
 
   const config = new DocumentBuilder()
     .addBearerAuth({
