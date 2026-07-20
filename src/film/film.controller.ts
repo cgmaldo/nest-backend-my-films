@@ -1,15 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Inject, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 import { FilmService } from './film.service';
 import { CreateFilmDto } from './dto/create-film.dto';
 import { UpdateFilmDto } from './dto/update-film.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from 'src/auth/entities/user.entity';
 import { Auth } from 'src/auth/decorators/auth.decorator';
-import { PaginationDto } from '../common/dtos/pagination-dto';
 import { TypeFilm } from './interfaces/typefilm.interface';
-import { ApiBearerAuth, ApiBody, ApiParam, ApiProperty, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UUID } from 'typeorm/driver/mongodb/bson.typings.js';
 import { FilmSearchDto } from 'src/common/dtos/film-search-dto';
+import { ValidTypeFilmPipe } from 'src/common/pipes/validTypeFilm.pipe';
 
 @ApiTags('Films')
 @Controller('film')
@@ -50,7 +50,7 @@ export class FilmController {
   })
   @Get('allBy/:typeFilm')
   @Auth()
-  findAll(@Param('typeFilm') typeFilm: TypeFilm, @Query() filmSearchDto: FilmSearchDto, @GetUser() user: User) {
+  findAll(@Param('typeFilm', ValidTypeFilmPipe) typeFilm: TypeFilm, @Query() filmSearchDto: FilmSearchDto, @GetUser() user: User) {
     return this.filmService.findAll(typeFilm, filmSearchDto, user);
   }
 
