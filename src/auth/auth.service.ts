@@ -96,10 +96,10 @@ export class AuthService {
       });
     }
     if (!user) {
-      const queryBuilder = this.userRepository.createQueryBuilder('auth');
+      const queryBuilder = this.userRepository.createQueryBuilder('user');
       user = await queryBuilder
         .where(
-          'UPPER(User.firstName) like :firstName or UPPER(User.lastName) Like :lastName or UPPER(User.email) Like :email', {
+          'UPPER(user.firstName) Like :firstName or UPPER(user.lastName) Like :lastName or UPPER(user.email) Like :email', {
           firstName: `%${term.toUpperCase()}%`,
           lastName: `%${term.toUpperCase()}%`,
           email: `%${term.toUpperCase()}%`,
