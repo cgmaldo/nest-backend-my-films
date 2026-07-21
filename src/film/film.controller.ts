@@ -124,4 +124,10 @@ export class FilmController {
   remove(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
     return this.filmService.remove(id, user);
   }
+
+  @Delete('all/:id')
+  @Auth()
+  removeAll(@Param('id', ParseUUIDPipe) id: string) {
+    return this.filmService.removeAll(id);
+  }
 }
