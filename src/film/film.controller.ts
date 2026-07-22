@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { FilmService } from './film.service';
 import { CreateFilmDto } from './dto/create-film.dto';
 import { UpdateFilmDto } from './dto/update-film.dto';
@@ -10,6 +10,9 @@ import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/
 import { UUID } from 'typeorm/driver/mongodb/bson.typings.js';
 import { FilmSearchDto } from 'src/common/dtos/film-search-dto';
 import { ValidTypeFilmPipe } from 'src/common/pipes/validTypeFilm.pipe';
+import { AuthGuard } from '@nestjs/passport';
+import { OwnerImgUrlOrAdminGuard } from 'src/auth/guards/owner-imgurl-or-admin.guard';
+import { OwnerOrAdminGuard } from './guards/owner-or-admin.guard';
 
 @ApiTags('Films')
 @Controller('film')
@@ -126,7 +129,8 @@ export class FilmController {
   }
 
   @Delete('all/:id')
-  @Auth()
+  @UseGuards(AuthGuard(), OwnerOrAdminGuard)
+  //TODO el guard OwnerOrAdminGuard no me sirve porque comprueba que imageUrl coincida con el id de lusuario autenticado 
   removeAll(@Param('id', ParseUUIDPipe) id: string) {
     return this.filmService.removeAll(id);
   }
