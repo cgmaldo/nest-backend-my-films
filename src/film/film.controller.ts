@@ -130,7 +130,6 @@ export class FilmController {
 
   @Delete('all/:id')
   @UseGuards(AuthGuard(), OwnerOrAdminGuard)
-  //TODO el guard OwnerOrAdminGuard no me sirve porque comprueba que imageUrl coincida con el id de lusuario autenticado 
   removeAll(@Param('id', ParseUUIDPipe) id: string) {
     return this.filmService.removeAll(id);
   }
