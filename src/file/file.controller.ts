@@ -5,7 +5,7 @@ import { diskStorage } from 'multer';
 import { fileFilter, fileNamer } from './helpers';
 import type { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
-import { OwnerOrAdminGuard } from 'src/auth/guards/owner-or-admin.guard';
+import { OwnerImgUrlOrAdminGuard } from 'src/auth/guards/owner-imgurl-or-admin.guard';
 import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from 'src/auth/entities/user.entity';
@@ -76,7 +76,7 @@ export class FileController {
   })
   @ApiBearerAuth('bearer-token')
   @Delete('profilePhoto/:imageName')
-  @UseGuards(AuthGuard(), OwnerOrAdminGuard)
+  @UseGuards(AuthGuard(), OwnerImgUrlOrAdminGuard)
   deletetProfilePhoto(@Param('imageName') imageName: string, @GetUser() user: User) {
     return this.fileService.deleteProfilePhoto(imageName, user);
   }
