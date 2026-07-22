@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Delete } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateFilmDto } from './dto/create-film.dto';
 import { UpdateFilmDto } from './dto/update-film.dto';
 import { User } from 'src/auth/entities/user.entity';
@@ -114,6 +114,16 @@ export class FilmService {
     } catch (error) {
       this.commonService.handleError(error);
     }
+  }
+
+  async removeType(userId: string, typeFilm: TypeFilm) {
+    const queryBuilder = this.filmRepository.createQueryBuilder('film');
+    const films = await queryBuilder
+      .where('film.userId=:who', { who: userId })
+      .andWhere('film.type=:type', { type: typeFilm })
+      .getMany();
+    await this.filmRepository.remove([...films])
+    return { films }
   }
 
   async removeAll(userId: string) {

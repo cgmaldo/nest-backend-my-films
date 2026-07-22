@@ -11,7 +11,7 @@ import { UUID } from 'typeorm/driver/mongodb/bson.typings.js';
 import { FilmSearchDto } from 'src/common/dtos/film-search-dto';
 import { ValidTypeFilmPipe } from 'src/common/pipes/validTypeFilm.pipe';
 import { AuthGuard } from '@nestjs/passport';
-import { OwnerOrAdminGuard } from './guards/owner-or-admin.guard';
+import { YourselfOrAdminGuard } from './guards/owner-or-admin.guard';
 
 @ApiTags('Films')
 @Controller('film')
@@ -127,8 +127,14 @@ export class FilmController {
     return this.filmService.remove(id, user);
   }
 
+  @Delete(':typeFilm/:id')
+  @UseGuards(AuthGuard(), YourselfOrAdminGuard)
+  removeAllByTypeFilm(@Param('typeFilm', ValidTypeFilmPipe) typeFilm: TypeFilm, @Param('id', ParseUUIDPipe) id: string) {
+    return this.filmService.removeType(id, typeFilm);
+  }
+
   @Delete('all/:id')
-  @UseGuards(AuthGuard(), OwnerOrAdminGuard)
+  @UseGuards(AuthGuard(), YourselfOrAdminGuard)
   removeAll(@Param('id', ParseUUIDPipe) id: string) {
     return this.filmService.removeAll(id);
   }
