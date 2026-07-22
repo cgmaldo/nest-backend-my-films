@@ -11,7 +11,6 @@ import { UUID } from 'typeorm/driver/mongodb/bson.typings.js';
 import { FilmSearchDto } from 'src/common/dtos/film-search-dto';
 import { ValidTypeFilmPipe } from 'src/common/pipes/validTypeFilm.pipe';
 import { AuthGuard } from '@nestjs/passport';
-import { OwnerImgUrlOrAdminGuard } from 'src/auth/guards/owner-imgurl-or-admin.guard';
 import { OwnerOrAdminGuard } from './guards/owner-or-admin.guard';
 
 @ApiTags('Films')
