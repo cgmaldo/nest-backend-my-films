@@ -5,7 +5,7 @@ import { User } from 'src/auth/entities/user.entity';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles';
 
 @Injectable()
-export class OwnerOrAdminGuard implements CanActivate {
+export class YourselfOrAdminGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
