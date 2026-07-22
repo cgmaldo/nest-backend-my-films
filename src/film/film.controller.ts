@@ -11,7 +11,7 @@ import { UUID } from 'typeorm/driver/mongodb/bson.typings.js';
 import { FilmSearchDto } from 'src/common/dtos/film-search-dto';
 import { ValidTypeFilmPipe } from 'src/common/pipes/validTypeFilm.pipe';
 import { AuthGuard } from '@nestjs/passport';
-import { YourselfOrAdminGuard } from './guards/owner-or-admin.guard';
+import { YourselfOrAdminGuard } from './guards/yourself-or-admin.guard';
 
 @ApiTags('Films')
 @Controller('film')
