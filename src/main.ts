@@ -29,8 +29,8 @@ async function bootstrap() {
     .setDescription('MyFilms endpoints')
     .setVersion('1.0')
     .addTag('Auths', 'All auths', undefined)
-    .addTag('Films', 'All films', undefined)
     .addTag('Files - Get and Upload', 'All files', undefined)
+    .addTag('Films', 'All films', undefined)
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
