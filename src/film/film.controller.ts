@@ -50,6 +50,12 @@ export class FilmController {
     description: 'User data owner of films obtained using custom decorator GetUser',
     required: true,
   })
+  @ApiParam({
+    enum: TypeFilm,
+    name: 'typefilm',
+    description: 'Kind of film',
+    required: true,
+  })
   @Get('allBy/:typeFilm')
   @Auth()
   findAll(@Param('typeFilm', ValidTypeFilmPipe) typeFilm: TypeFilm, @Query() filmSearchDto: FilmSearchDto, @GetUser() user: User) {
@@ -127,15 +133,46 @@ export class FilmController {
     return this.filmService.remove(id, user);
   }
 
-  @Delete(':typeFilm/:id')
-  @UseGuards(AuthGuard(), YourselfOrAdminGuard)
-  removeAllByTypeFilm(@Param('typeFilm', ValidTypeFilmPipe) typeFilm: TypeFilm, @Param('id', ParseUUIDPipe) id: string) {
-    return this.filmService.removeType(id, typeFilm);
-  }
-
+  @ApiResponse({ status: 200, description: 'List films deleted' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 403, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Not found user' })
+  @ApiResponse({ status: 500, description: 'Unexpected error check server logs' })
+  @ApiParam({
+    type: UUID,
+    name: 'id',
+    description: 'User ID',
+    required: true,
+  })
+  @ApiBearerAuth('bearer-token')
   @Delete('all/:id')
   @UseGuards(AuthGuard(), YourselfOrAdminGuard)
   removeAll(@Param('id', ParseUUIDPipe) id: string) {
     return this.filmService.removeAll(id);
+  }
+
+  @ApiResponse({ status: 200, description: 'List films deleted' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 403, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Not found user' })
+  @ApiResponse({ status: 500, description: 'Unexpected error check server logs' })
+  @ApiParam({
+    type: UUID,
+    name: 'id',
+    description: 'Film ID',
+    required: true,
+  })
+  @ApiParam({
+    name: 'typefilm',
+    type: 'string',
+    enum: TypeFilm,
+    description: 'Kind of film',
+    required: true,
+  })
+  @ApiBearerAuth('bearer-token')
+  @Delete(':typeFilm/:id')
+  @UseGuards(AuthGuard(), YourselfOrAdminGuard)
+  removeAllByTypeFilm(@Param('typeFilm', ValidTypeFilmPipe) typeFilm: TypeFilm, @Param('id', ParseUUIDPipe) id: string) {
+    return this.filmService.removeType(id, typeFilm);
   }
 }
