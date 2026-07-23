@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
 
 @Injectable()
 export class CommonService {
@@ -7,6 +7,9 @@ export class CommonService {
     handleError(error: any) {
         if (error.code === '23505') {
             throw new BadRequestException(error.detail);
+        }
+        if (error.code === 'ENOENT') {
+            throw new NotFoundException('File not found');
         }
         this.logger.error(error);
         throw new InternalServerErrorException('Unexpected error check server logs');
