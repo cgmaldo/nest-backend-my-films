@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { FilmModule } from './film/film.module';
 import { FileModule } from './file/file.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { FileModule } from './file/file.module';
     CommonModule,
     FilmModule,
     FileModule,
+    SeedModule,
   ],
   controllers: [],
   providers: [],

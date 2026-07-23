@@ -12,6 +12,7 @@ import { CommonModule } from 'src/common/common.module';
     ConfigModule,
     AuthModule,
     CommonModule,
-  ]
+  ],
+  exports: [FilmService]
 })
 export class FilmModule { }
