@@ -38,8 +38,11 @@ npm install
 ```
 docker compose up -d
 ```
+7. Aprovisionar en http://neon.com una base de datos en la nube y obtener los datos de conexión. Colocar estos datos en las variables de entorno.
 
-7. Arrancar aplicación:
+8. Configurar la variable de entrono STAGE a prod para utilizar https en las conexión con la base de datos. Necesario si usa la base de datos en la nube.
+
+9. Arrancar aplicación:
 ```
 npm run start:dev
 ```
